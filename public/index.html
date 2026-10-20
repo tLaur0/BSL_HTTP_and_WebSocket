@@ -1,120 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSL WebSocket Test Client</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        #status {
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            background-color: #f0f0f0;
-        }
-        #controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        input[type="text"] {
-            flex-grow: 1;
-            padding: 8px;
-        }
-        button {
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        #log {
-            border: 1px solid #ccc;
-            height: 250px;
-            overflow-y: auto;
-            padding: 10px;
-            background-color: #fafafa;
-            font-family: monospace;
-        }
-        .sent { color: #0066cc; }
-        .received { color: #008800; }
-        .system { color: #888888; font-style: italic; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>John Laurence Denore | Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --steel:#070b1a; --panel:#0e1530; --line:#1f2d57; --text:#dbe6ff; --muted:#8497c4;
+  --signal:#00e5ff; --ice:#9b7bff;
+  --head:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --body:'Barlow',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{font-family:var(--body);background:var(--steel);color:var(--text);line-height:1.65;font-size:17px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+header{position:fixed;inset:0 0 auto 0;z-index:20;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 6%;background:rgba(7,11,26,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--head);font-weight:800;font-size:24px;letter-spacing:.04em;text-decoration:none}
+.logo b{color:var(--signal)}
+nav{display:flex;gap:6px}
+nav a{text-decoration:none;padding:6px 14px;border-radius:4px;color:var(--muted);font-weight:500;transition:color .2s,background .2s}
+nav a:hover{color:#fff}
+nav a.active{color:#fff;background:var(--panel);box-shadow:inset 0 -2px 0 var(--signal)}
+
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:110px 6% 60px;overflow:hidden;
+  background:radial-gradient(ellipse at 78% 40%,rgba(0,229,255,.10),transparent 55%),radial-gradient(ellipse at 15% 95%,rgba(155,123,255,.16),transparent 50%)}
+#net{position:absolute;inset:0;width:100%;height:100%}
+.hero-in{position:relative;max-width:600px;pointer-events:none}
+.hero-in a,.hero-in button{pointer-events:auto}
+.hero h1{font-family:var(--head);font-weight:800;font-size:clamp(52px,8vw,96px);line-height:.92;text-transform:uppercase;letter-spacing:.01em}
+.hero h1 span{display:block;color:transparent;-webkit-text-stroke:2px var(--text)}
+.role{margin:22px 0 10px;font-size:22px;font-weight:600;color:var(--signal);min-height:34px}
+.role::after{content:"";display:inline-block;width:3px;height:1em;background:var(--signal);margin-left:4px;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p.lead{max-width:540px;color:var(--muted);margin-bottom:30px}
+.btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 26px;font-weight:700;text-decoration:none;border-radius:4px;border:2px solid var(--signal);
+  background:var(--signal);color:#070b1a;cursor:pointer;font:700 16px var(--body);box-shadow:0 0 20px rgba(0,229,255,.4);transition:transform .15s,background .2s,color .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);background:transparent;color:var(--signal);box-shadow:0 0 26px rgba(0,229,255,.55),inset 0 0 14px rgba(0,229,255,.25)}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ice);color:var(--ice)}
+
+main{max-width:1060px;margin:auto;padding:0 6%}
+section{padding:80px 0;border-top:1px solid var(--line)}
+h2{font-family:var(--head);font-weight:800;font-size:44px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:26px}
+h2::after{content:"";display:block;width:72px;height:4px;background:linear-gradient(90deg,var(--signal),var(--ice));margin-top:8px;box-shadow:0 0 14px rgba(0,229,255,.6)}
+#about p{max-width:640px;color:var(--muted);font-size:19px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:30px}
+.fact{background:var(--panel);border-left:4px solid var(--ice);padding:16px 18px}
+.fact b{display:block;font-family:var(--head);font-size:24px;color:#fff}
+.fact span{color:var(--muted);font-size:15px}
+
+.filters{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.chip{background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:7px 18px;border-radius:4px;cursor:pointer;font:600 15px var(--body);transition:.2s}
+.chip:hover{color:#fff;border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ice);color:#070b1a;border-color:var(--ice)}
+.skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.skill{background:var(--panel);border:1px solid var(--line);padding:18px;transition:opacity .25s,transform .25s,border-color .2s}
+.skill:hover{border-color:var(--signal);box-shadow:0 0 18px rgba(0,229,255,.25)}
+.skill.off{opacity:.18;transform:scale(.97)}
+.skill h3{font-family:var(--head);font-size:24px;color:#fff}
+.skill p{color:var(--muted);font-size:15px}
+
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;align-items:start}
+.proj{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--signal);text-align:left;color:inherit;cursor:pointer;width:100%;padding:0;font:inherit}
+.proj:hover{border-color:var(--ice);border-top-color:var(--signal);box-shadow:0 0 22px rgba(155,123,255,.3)}
+.proj .top{padding:22px;display:flex;justify-content:space-between;gap:12px}
+.proj h3{font-family:var(--head);font-size:30px;color:#fff;line-height:1.1}
+.proj .tech{color:var(--ice);font-weight:600;font-size:15px;margin-top:4px}
+.plus{font-family:var(--head);font-size:32px;color:var(--signal);line-height:1;transition:transform .25s}
+.proj[aria-expanded="true"] .plus{transform:rotate(45deg)}
+.more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.proj[aria-expanded="true"] .more{grid-template-rows:1fr}
+.more>div{overflow:hidden}
+.more p{padding:0 22px 22px;color:var(--muted);font-size:16px}
+
+.contact-box{background:var(--panel);border:1px solid var(--line);padding:30px;display:grid;gap:14px;max-width:620px}
+.row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.row strong{font-family:var(--head);font-size:20px;color:var(--signal);min-width:70px}
+.row a{overflow-wrap:anywhere;text-decoration:none;border-bottom:1px solid var(--line)}
+.row a:hover{color:var(--ice);border-color:var(--ice)}
+.copy{background:transparent;border:1px solid var(--line);color:var(--muted);padding:4px 12px;border-radius:4px;cursor:pointer;font:600 14px var(--body)}
+.copy:hover{color:#fff;border-color:var(--signal)}
+
+footer{border-top:1px solid var(--line);text-align:center;padding:26px;color:var(--muted);font-size:15px}
+
+@media (max-width:640px){
+  header{flex-direction:column;gap:6px}
+  nav a{padding:5px 9px}
+  .hero{padding-top:130px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
 </head>
 <body>
 
-    <h2>BSL WebSocket Client</h2>
-    <div id="status">Status: Connecting...</div>
+<header>
+  <a class="logo" href="#top">JLD<b>.</b>NET</a>
+  <nav aria-label="Main">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
 
-    <div id="controls">
-        <input type="text" id="msgInput" placeholder="Enter message..." disabled />
-        <button id="sendBtn" disabled>Send</button>
+<div class="hero" id="top">
+  <canvas id="net" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <h1>John Laurence <span>Denore</span></h1>
+    <div class="role" id="role" aria-live="off"></div>
+    <p class="lead">Information Technology student specializing in Network Systems. I build and troubleshoot networks, write Java and C++, and I'm learning cybersecurity.</p>
+    <div class="btns">
+      <a class="btn" href="#projects">View my projects</a>
+      <a class="btn ghost" href="https://github.com/tLaur0">GitHub profile</a>
     </div>
+  </div>
+</div>
 
-    <div id="log"></div>
+<main>
+  <section id="about">
+    <h2>About me</h2>
+    <p>I'm a determined IT student who learns by building and breaking things, then fixing them. I'm improving my technical skills every semester and working toward a career as an IT professional.</p>
+    <div class="facts">
+      <div class="fact"><b>Network Systems</b><span>Specialization</span></div>
+      <div class="fact"><b>3 projects</b><span>Networking and software</span></div>
+      <div class="fact"><b>Cybersecurity</b><span>Next area to learn</span></div>
+    </div>
+  </section>
 
-    <script>
-        const wsUrl = "ws://localhost:8000";
-        const socket = new WebSocket(wsUrl);
+  <section id="skills">
+    <h2>Skills &amp; technologies</h2>
+    <div class="filters" role="group" aria-label="Filter skills">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="net" aria-pressed="false">Networking</button>
+      <button class="chip" data-f="code" aria-pressed="false">Programming</button>
+    </div>
+    <div class="skills">
+      <div class="skill" data-c="net"><h3>Computer Networking</h3><p>Routing, switching, IP addressing, VLANs.</p></div>
+      <div class="skill" data-c="net"><h3>Cisco Packet Tracer</h3><p>Network design, configuration, and troubleshooting labs.</p></div>
+      <div class="skill" data-c="code"><h3>Java</h3><p>Android apps and data-structure programs.</p></div>
+      <div class="skill" data-c="code"><h3>C++</h3><p>Core programming and problem solving.</p></div>
+    </div>
+  </section>
 
-        const statusDiv = document.getElementById("status");
-        const logDiv = document.getElementById("log");
-        const msgInput = document.getElementById("msgInput");
-        const sendBtn = document.getElementById("sendBtn");
+  <section id="projects">
+    <h2>Projects &amp; achievements</h2>
+    <div class="projects">
+      <button class="proj" aria-expanded="false">
+        <div class="top"><div><h3>RoomEase</h3><div class="tech">Java, Android</div></div><span class="plus" aria-hidden="true">+</span></div>
+        <div class="more"><div><p>An Android application for viewing library room schedules and managing room reservations.</p></div></div>
+      </button>
+      <button class="proj" aria-expanded="false">
+        <div class="top"><div><h3>FindMyItem</h3><div class="tech">Java</div></div><span class="plus" aria-hidden="true">+</span></div>
+        <div class="more"><div><p>A console-based item tracking program that manages records using a linked list, linear search, and bubble sort.</p></div></div>
+      </button>
+      <button class="proj" aria-expanded="false">
+        <div class="top"><div><h3>Network Configuration</h3><div class="tech">Cisco Packet Tracer</div></div><span class="plus" aria-hidden="true">+</span></div>
+        <div class="more"><div><p>Networking exercises involving routers, switches, IP addressing, VLANs, and troubleshooting.</p></div></div>
+      </button>
+    </div>
+  </section>
 
-        function appendLog(text, className) {
-            const entry = document.createElement("div");
-            entry.className = className;
-            entry.textContent = text;
-            logDiv.appendChild(entry);
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
+  <section id="contact">
+    <h2>Contact</h2>
+    <div class="contact-box">
+      <div class="row"><strong>Email</strong>
+        <a href="mailto:johnlaurence.denore@g.msuiit.edu.ph" id="mail">johnlaurence.denore@g.msuiit.edu.ph</a>
+        <button class="copy" id="copy">Copy</button></div>
+      <div class="row"><strong>GitHub</strong><a href="https://github.com/tLaur0">tLaur0</a></div>
+    </div>
+  </section>
+</main>
 
-        socket.onopen = function() {
-            statusDiv.textContent = "Status: Connected to " + wsUrl;
-            statusDiv.style.backgroundColor = "#d4edda";
-            statusDiv.style.color = "#155724";
-            msgInput.disabled = false;
-            sendBtn.disabled = false;
-            appendLog("[System] Handshake complete. WebSocket ready.", "system");
-        };
+<footer>&copy; 2026 John Laurence Denore | Personal Portfolio</footer>
 
-        socket.onmessage = function(event) {
-            appendLog("[Server] " + event.data, "received");
-        };
+<script>
+// Typing role line
+(function(){
+  const roles=["IT Student","Network Systems","Java Developer","Future Security Pro"];
+  const el=document.getElementById("role");
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=roles.join(" | ");return;}
+  let r=0,c=0,del=false;
+  (function tick(){
+    const w=roles[r];
+    el.textContent=w.slice(0,c);
+    if(!del&&c===w.length){del=true;return setTimeout(tick,1400);}
+    if(del&&c===0){del=false;r=(r+1)%roles.length;}
+    c+=del?-1:1;
+    setTimeout(tick,del?40:85);
+  })();
+})();
 
-        socket.onclose = function(event) {
-            statusDiv.textContent = "Status: Disconnected";
-            statusDiv.style.backgroundColor = "#f8d7da";
-            statusDiv.style.color = "#721c24";
-            msgInput.disabled = true;
-            sendBtn.disabled = true;
-            appendLog("[System] Connection closed by server.", "system");
-        };
+// Hero background: live network topology (router, switches, PCs, server) with pings
+(function(){
+  const cv=document.getElementById("net"),ctx=cv.getContext("2d");
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const ICE="#9b7bff",ORG="#00e5ff",NEU="#dbe6ff",BG="#070b1a";
+  const EDGES=[[0,1],[1,2],[1,3],[2,4],[2,5],[2,6],[3,7],[3,8],[3,9]];
+  let W,H,N=[],packets=[],log=[],mouse={x:-999,y:-999},hover=null,tick=0,pos={};
+  const hero=cv.parentElement;
 
-        socket.onerror = function(error) {
-            appendLog("[Error] WebSocket error occurred.", "system");
-        };
+  function build(){
+    W=cv.width=hero.clientWidth;H=cv.height=hero.clientHeight;
+    const wide=W>=900,x0=wide?W*.55:W*.06,aw=wide?W*.42:W*.88,y0=H*(wide?.2:.3),ah=H*(wide?.5:.45);
+    pos={x0,aw,y0,ah};
+    const cx=x0+aw/2,Y=[0,.22,.5,.82].map(f=>y0+ah*f),s1=x0+aw*.25,s2=x0+aw*.75,d=aw*.17;
+    N=[
+      {t:"cloud",label:"Internet",ip:"8.8.8.8",x:cx,y:Y[0]},
+      {t:"router",label:"R1",ip:"192.168.1.1",x:cx,y:Y[1]},
+      {t:"switch",label:"SW1 (VLAN 10)",ip:"192.168.10.1",x:s1,y:Y[2],c:ICE},
+      {t:"switch",label:"SW2 (VLAN 20)",ip:"192.168.20.1",x:s2,y:Y[2],c:ORG},
+      {t:"pc",label:"PC1",ip:"192.168.10.11",x:s1-d,y:Y[3],c:ICE},
+      {t:"pc",label:"PC2",ip:"192.168.10.12",x:s1,y:Y[3],c:ICE},
+      {t:"pc",label:"PC3",ip:"192.168.10.13",x:s1+d,y:Y[3],c:ICE},
+      {t:"pc",label:"PC4",ip:"192.168.20.11",x:s2-d,y:Y[3],c:ORG},
+      {t:"pc",label:"PC5",ip:"192.168.20.12",x:s2,y:Y[3],c:ORG},
+      {t:"server",label:"Server",ip:"192.168.20.100",x:s2+d,y:Y[3],c:ORG}
+    ];
+    N.forEach((n,i)=>{n.id=i;n.nb=[];});
+    EDGES.forEach(([a,b])=>{N[a].nb.push(b);N[b].nb.push(a);});
+    packets=[];
+    if(!log.length)add("Network up. Click a device to send a ping.");
+  }
+  function add(s){log.push({s,born:tick});if(log.length>4)log.shift();}
+  function path(a,b){
+    const prev={[a]:-1},q=[a];
+    while(q.length){const u=q.shift();if(u===b)break;N[u].nb.forEach(v=>{if(!(v in prev)){prev[v]=u;q.push(v);}});}
+    const p=[];for(let u=b;u!==-1;u=prev[u])p.unshift(u);return p;
+  }
+  function ping(a,b){
+    if(packets.length>6)return;
+    packets.push({p:path(a,b),i:0,t:0,rep:false,src:a,dst:b});
+  }
+  function randPC(){return 4+Math.floor(Math.random()*5);}
 
-        function sendMessage() {
-            const text = msgInput.value.trim();
-            if (text.length > 0 && socket.readyState === WebSocket.OPEN) {
-                socket.send(text);
-                appendLog("[Client] " + text, "sent");
-                msgInput.value = "";
-            }
-        }
+  function icon(n,on){
+    const x=n.x,y=n.y,c=on?ORG:(n.c||NEU);
+    ctx.lineWidth=2;ctx.strokeStyle=c;ctx.fillStyle=BG;
+    if(n.t==="cloud"){
+      const shape=()=>{ctx.beginPath();
+        ctx.moveTo(x-3,y+4);ctx.arc(x-12,y+4,9,0,6.283);
+        ctx.moveTo(x+13,y-5);ctx.arc(x+1,y-5,12,0,6.283);
+        ctx.moveTo(x+23,y+4);ctx.arc(x+14,y+4,9,0,6.283);
+        ctx.rect(x-12,y+3,26,10);};
+      shape();ctx.lineWidth=5;ctx.stroke();shape();ctx.fill();
+    }else if(n.t==="router"){
+      ctx.beginPath();ctx.arc(x,y,18,0,6.283);ctx.fill();ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x-10,y);ctx.lineTo(x+10,y);ctx.moveTo(x,y-10);ctx.lineTo(x,y+10);
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{
+        const tx=x+dx*10,ty=y+dy*10;
+        ctx.moveTo(tx,ty);ctx.lineTo(tx-dx*4-dy*3,ty-dy*4+dx*3);
+        ctx.moveTo(tx,ty);ctx.lineTo(tx-dx*4+dy*3,ty-dy*4-dx*3);});
+      ctx.stroke();
+    }else if(n.t==="switch"){
+      ctx.beginPath();ctx.rect(x-24,y-11,48,22);ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x-14,y-3);ctx.lineTo(x+14,y-3);
+      ctx.moveTo(x+14,y-3);ctx.lineTo(x+9,y-6);ctx.moveTo(x+14,y-3);ctx.lineTo(x+9,y);
+      ctx.moveTo(x-14,y-3);ctx.lineTo(x-9,y-6);ctx.moveTo(x-14,y-3);ctx.lineTo(x-9,y);ctx.stroke();
+      ctx.fillStyle=c;for(let k=0;k<4;k++)ctx.fillRect(x-15+k*9,y+4,5,4);
+    }else if(n.t==="pc"){
+      ctx.beginPath();ctx.rect(x-14,y-14,28,19);ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,y+5);ctx.lineTo(x,y+10);ctx.moveTo(x-8,y+10);ctx.lineTo(x+8,y+10);ctx.stroke();
+    }else{
+      for(let k=0;k<3;k++){const yy=y-16+k*11;
+        ctx.beginPath();ctx.rect(x-14,yy,28,9);ctx.fill();ctx.stroke();
+        ctx.fillStyle=c;ctx.fillRect(x+7,yy+3,3,3);ctx.fillStyle=BG;}
+    }
+    ctx.font="600 13px Barlow,Arial,sans-serif";ctx.textAlign="center";
+    ctx.fillStyle=on?ORG:"#8497c4";
+    ctx.fillText(n.label,x,y+(n.t==="pc"||n.t==="server"?32:30));
+    if(on){ctx.fillStyle=ORG;ctx.fillText(n.ip,x,y-26);}
+  }
 
-        sendBtn.addEventListener("click", sendMessage);
-        msgInput.addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                sendMessage();
-            }
-        });
-    </script>
+  function draw(){
+    tick++;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalAlpha=W<900?.35:1;
+    // grid
+    ctx.strokeStyle="rgba(155,123,255,.05)";ctx.lineWidth=1;ctx.beginPath();
+    for(let x=0;x<=W;x+=56){ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);}
+    for(let y=0;y<=H;y+=56){ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);}
+    ctx.stroke();
+    // links, lit while a packet is on them
+    const lit=new Set();
+    packets.forEach(k=>{const a=k.p[k.i],b=k.p[k.i+1];lit.add(Math.min(a,b)+"-"+Math.max(a,b));});
+    EDGES.forEach(([a,b])=>{
+      const on=lit.has(a+"-"+b);
+      ctx.strokeStyle=on?ORG:"rgba(155,123,255,.28)";ctx.lineWidth=on?3:2;
+      ctx.beginPath();ctx.moveTo(N[a].x,N[a].y);ctx.lineTo(N[b].x,N[b].y);ctx.stroke();
+    });
+    // hover
+    hover=null;let best=34;
+    N.forEach(n=>{const d=Math.hypot(n.x-mouse.x,n.y-mouse.y);if(d<best){best=d;hover=n;}});
+    hero.style.cursor=hover?"pointer":"";
+    N.forEach(n=>icon(n,n===hover));
+    // packets
+    for(let j=packets.length-1;j>=0;j--){
+      const k=packets[j],a=N[k.p[k.i]],b=N[k.p[k.i+1]];
+      k.t+=2.6/Math.hypot(b.x-a.x,b.y-a.y);
+      if(k.t>=1){k.t=0;k.i++;
+        if(k.i>=k.p.length-1){
+          packets.splice(j,1);
+          if(!k.rep)packets.push({p:k.p.slice().reverse(),i:0,t:0,rep:true,src:k.src,dst:k.dst});
+          else{const ms=k.dst===0?20+Math.floor(Math.random()*20):1+Math.floor(Math.random()*3);
+            add(N[k.src].label+": Reply from "+N[k.dst].ip+" bytes=32 time="+ms+"ms");}
+          continue;}
+      }
+      const x=a.x+(b.x-a.x)*k.t,y=a.y+(b.y-a.y)*k.t;
+      ctx.shadowColor=k.rep?ICE:ORG;ctx.shadowBlur=16;
+      ctx.fillStyle=k.rep?ICE:ORG;ctx.fillRect(x-4,y-4,8,8);ctx.shadowBlur=0;
+    }
+    // ping log
+    ctx.textAlign="left";ctx.font="600 13px Barlow,Arial,sans-serif";
+    log.forEach((l,i)=>{
+      ctx.globalAlpha=(W<900?.35:1)*Math.max(.35,1-(tick-l.born)/700);
+      ctx.fillStyle=i===log.length-1?ICE:"#8497c4";
+      ctx.fillText("> "+l.s,pos.x0,pos.y0+pos.ah+52+i*18);
+    });
+    ctx.globalAlpha=1;
+    if(!reduce){
+      if(tick%120===60)ping(randPC(),Math.random()<.5?0:9);
+      requestAnimationFrame(draw);
+    }
+  }
 
+  hero.addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;});
+  hero.addEventListener("mouseleave",()=>{mouse.x=mouse.y=-999;});
+  hero.addEventListener("click",()=>{
+    if(!hover)return;
+    if(hover.t==="pc")ping(hover.id,0);else ping(randPC(),hover.id);
+  });
+  addEventListener("resize",()=>{build();if(reduce)draw();});
+  build();draw();
+})();
+
+// Active nav link on scroll
+(function(){
+  const links=[...document.querySelectorAll("nav a")];
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){
+      links.forEach(l=>l.classList.toggle("active",l.getAttribute("href")==="#"+e.target.id));}});
+  },{rootMargin:"-45% 0px -50% 0px"});
+  document.querySelectorAll("section[id]").forEach(s=>io.observe(s));
+})();
+
+// Skill filters
+document.querySelectorAll(".chip").forEach(chip=>{
+  chip.addEventListener("click",()=>{
+    document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===chip));
+    const f=chip.dataset.f;
+    document.querySelectorAll(".skill").forEach(s=>s.classList.toggle("off",f!=="all"&&s.dataset.c!==f));
+  });
+});
+
+// Project expand / collapse
+document.querySelectorAll(".proj").forEach(p=>{
+  p.addEventListener("click",()=>p.setAttribute("aria-expanded",p.getAttribute("aria-expanded")!=="true"));
+});
+
+// Copy email
+document.getElementById("copy").addEventListener("click",function(){
+  const b=this,t=document.getElementById("mail").textContent.trim();
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{
+    b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1600);
+  }).catch(()=>{b.textContent="Select and copy manually";});
+});
+</script>
 </body>
 </html>
